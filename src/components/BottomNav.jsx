@@ -9,7 +9,10 @@ const tabs = [
 
 export default function BottomNav({ active, onChange }) {
     return (
-        <nav className="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-bg-surface border-t border-bg-border">
+        <nav
+            className="bottom-nav fixed bottom-0 left-0 right-0 bg-bg-surface border-t border-bg-border"
+            style={{ zIndex: 50 }}
+        >
             <div className="flex items-center justify-around px-2 pt-2">
                 {tabs.map(({ id, icon: Icon, label }) => {
                     const isActive = active === id;

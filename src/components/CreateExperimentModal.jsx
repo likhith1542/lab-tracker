@@ -78,8 +78,8 @@ export default function CreateExperimentModal({ onClose, onCreate }) {
 
     return (
         <div
-            className="fixed inset-0 z-50"
-            style={{ background: "rgba(0,0,0,0.8)" }}
+            className="fixed inset-0"
+            style={{ background: "rgba(0,0,0,0.8)", zIndex: 200 }}
             onClick={onClose}
         >
             <div
@@ -89,6 +89,7 @@ export default function CreateExperimentModal({ onClose, onCreate }) {
                     height: "92dvh",
                     overflowY: "auto",
                     WebkitOverflowScrolling: "touch",
+                    zIndex: 201,
                 }}
                 onClick={(e) => e.stopPropagation()}
             >

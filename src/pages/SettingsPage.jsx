@@ -342,18 +342,21 @@ export default function SettingsPage() {
 
             {clearConfirm && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end"
-                    style={{ background: "rgba(0,0,0,0.8)" }}
+                    className="fixed inset-0"
+                    style={{ background: "rgba(0,0,0,0.8)", zIndex: 200 }}
+                    onClick={() => setClearConfirm(false)}
                 >
                     <div
-                        onClick={() => setClearConfirm(false)}
-                        className="absolute inset-0"
-                    />
-                    <div
-                        className="relative w-full rounded-t-3xl p-5 page-enter"
-                        style={{ background: "var(--bg-surface)" }}
+                        className="absolute bottom-0 left-0 right-0 rounded-t-3xl p-5 page-enter"
+                        style={{
+                            background: "var(--bg-surface)",
+                            zIndex: 201,
+                            paddingBottom:
+                                "max(28px, env(safe-area-inset-bottom))",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="text-center mb-4">
+                        <div className="text-center mb-6">
                             <div className="text-3xl mb-2">⚠️</div>
                             <h3
                                 className="text-lg font-bold"
@@ -373,7 +376,7 @@ export default function SettingsPage() {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setClearConfirm(false)}
-                                className="flex-1 py-3 rounded-xl font-bold text-sm"
+                                className="flex-1 py-4 rounded-xl font-bold text-sm"
                                 style={{
                                     background: "var(--bg-card)",
                                     color: "var(--text-secondary)",
@@ -384,7 +387,7 @@ export default function SettingsPage() {
                             </button>
                             <button
                                 onClick={handleClear}
-                                className="flex-1 py-3 rounded-xl font-bold text-sm"
+                                className="flex-1 py-4 rounded-xl font-bold text-sm"
                                 style={{
                                     background: "var(--accent-red)",
                                     color: "white",
