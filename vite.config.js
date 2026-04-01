@@ -5,7 +5,9 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const base = process.env.GITHUB_ACTIONS ? "/lab-tracker/" : "/";
+// VITE_BASE=/ for subdomain (root)
+// VITE_BASE=/lab-tracker/ for GitHub Pages repo subpath
+const base = process.env.VITE_BASE || "/";
 
 export default defineConfig({
     base,
