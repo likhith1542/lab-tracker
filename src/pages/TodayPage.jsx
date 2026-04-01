@@ -1,23 +1,19 @@
 import { useState, useMemo } from "react";
 import {
     Plus,
+    CheckCircle,
+    XCircle,
     Zap,
-    FlaskConical,
-    TrendingUp,
     Award,
-    Target,
+    TrendingUp,
+    FlaskConical,
 } from "lucide-react";
 import { useExperiments } from "../hooks/useExperiments";
 import ExperimentCard from "../components/ExperimentCard";
 import CreateExperimentModal from "../components/CreateExperimentModal";
-import {
-    getExperimentProgress,
-    getSuccessRate,
-    getCurrentStreak,
-    today,
-} from "../utils/experiments";
+import { getSuccessRate, getCurrentStreak, today } from "../utils/experiments";
 
-export default function Dashboard({ onNavigateToDetail }) {
+export default function TodayPage({ onNavigateToDetail }) {
     const {
         experiments,
         activeExperiments,
@@ -45,12 +41,24 @@ export default function Dashboard({ onNavigateToDetail }) {
             totalLogs.length > 0
                 ? Math.round((successLogs.length / totalLogs.length) * 100)
                 : 0;
-        const maxStreak = Math.max(
-            0,
-            ...experiments.map((e) => getCurrentStreak(e)),
-        );
-        return { total, active, completed, overallRate, maxStreak };
+        return { total, active, completed, overallRate };
     }, [experiments, activeExperiments]);
+
+    const pendingToday = useMemo(
+        () =>
+            activeExperiments.filter(
+                (e) => !e.logs?.find((l) => l.date === today()),
+            ),
+        [activeExperiments],
+    );
+
+    const loggedToday = useMemo(
+        () =>
+            activeExperiments.filter((e) =>
+                e.logs?.find((l) => l.date === today()),
+            ),
+        [activeExperiments],
+    );
 
     const handleQuickLog = async (id, status) => {
         await addLog(id, { status, date: today(), note: "" });
@@ -61,23 +69,16 @@ export default function Dashboard({ onNavigateToDetail }) {
         );
     };
 
-    const todayCheckIns = useMemo(() => {
-        return activeExperiments.filter((e) => {
-            const log = e.logs?.find((l) => l.date === today());
-            return !log;
-        });
-    }, [activeExperiments]);
-
     if (loading) {
         return (
             <div
-                className="flex-1 flex items-center justify-center"
-                style={{ background: "var(--bg-base)" }}
+                className="flex items-center justify-center"
+                style={{ height: "60vh" }}
             >
                 <div className="text-center space-y-3">
                     <div className="text-4xl animate-float">⚗️</div>
                     <p
-                        className="font-mono text-sm"
+                        className="text-sm"
                         style={{
                             color: "var(--text-muted)",
                             fontFamily: "DM Mono",
@@ -91,10 +92,16 @@ export default function Dashboard({ onNavigateToDetail }) {
     }
 
     return (
-        <div className="flex-1" style={{ paddingBottom: 120 }}>
-            {/* Header */}
-            <div className="px-5 pt-6 pb-4">
-                <div className="flex items-start justify-between">
+        <div style={{ paddingBottom: 100 }}>
+            {/* Sticky header */}
+            <div
+                className="sticky top-0 z-10 px-5 pt-6 pb-4"
+                style={{
+                    background: "var(--bg-base)",
+                    borderBottom: "1px solid var(--bg-border)",
+                }}
+            >
+                <div className="flex items-start justify-between mb-4">
                     <div>
                         <p
                             className="text-xs font-mono mb-1"
@@ -119,9 +126,11 @@ export default function Dashboard({ onNavigateToDetail }) {
                             className="text-sm mt-0.5"
                             style={{ color: "var(--text-secondary)" }}
                         >
-                            {stats.active > 0
-                                ? `${stats.active} active experiment${stats.active > 1 ? "s" : ""}`
-                                : "No active experiments"}
+                            {pendingToday.length > 0
+                                ? `${pendingToday.length} check-in${pendingToday.length > 1 ? "s" : ""} pending today`
+                                : activeExperiments.length > 0
+                                  ? "✅ All done for today!"
+                                  : "No active experiments"}
                         </p>
                     </div>
                     <button
@@ -134,14 +143,11 @@ export default function Dashboard({ onNavigateToDetail }) {
                             fontFamily: "Syne",
                         }}
                     >
-                        <Plus size={16} strokeWidth={2.5} />
-                        New
+                        <Plus size={16} strokeWidth={2.5} /> New
                     </button>
                 </div>
-            </div>
 
-            {/* Stats row */}
-            <div className="px-5 mb-5">
+                {/* Stats */}
                 <div className="grid grid-cols-4 gap-2">
                     {[
                         {
@@ -205,49 +211,20 @@ export default function Dashboard({ onNavigateToDetail }) {
                 </div>
             </div>
 
-            {/* Today's check-ins needed */}
-            {todayCheckIns.length > 0 && (
-                <div
-                    className="mx-5 mb-5 p-3 rounded-2xl"
-                    style={{
-                        background: "rgba(0,229,255,0.05)",
-                        border: "1px solid rgba(0,229,255,0.2)",
-                    }}
-                >
-                    <p
-                        className="text-xs font-mono font-bold mb-1"
-                        style={{
-                            color: "var(--accent-cyan)",
-                            fontFamily: "DM Mono",
-                        }}
-                    >
-                        ⏰ PENDING CHECK-INS TODAY
-                    </p>
-                    <p
-                        className="text-sm"
-                        style={{ color: "var(--text-secondary)" }}
-                    >
-                        {todayCheckIns.length} experiment
-                        {todayCheckIns.length > 1 ? "s" : ""} waiting for
-                        today's log
-                    </p>
-                </div>
-            )}
-
-            {/* Active experiments */}
-            {activeExperiments.length > 0 && (
-                <div className="px-5 mb-6">
+            {/* Pending check-ins */}
+            {pendingToday.length > 0 && (
+                <div className="px-5 mt-5 mb-2">
                     <p
                         className="text-xs font-mono font-bold mb-3"
                         style={{
-                            color: "var(--text-muted)",
+                            color: "var(--accent-yellow)",
                             fontFamily: "DM Mono",
                         }}
                     >
-                        ACTIVE EXPERIMENTS
+                        ⏰ PENDING TODAY ({pendingToday.length})
                     </p>
                     <div className="space-y-3">
-                        {activeExperiments.map((exp) => (
+                        {pendingToday.map((exp) => (
                             <ExperimentCard
                                 key={exp.id}
                                 experiment={exp}
@@ -259,9 +236,9 @@ export default function Dashboard({ onNavigateToDetail }) {
                 </div>
             )}
 
-            {/* Completed */}
-            {experiments.filter((e) => e.status === "completed").length > 0 && (
-                <div className="px-5 mb-6">
+            {/* Logged today */}
+            {loggedToday.length > 0 && (
+                <div className="px-5 mt-5 mb-2">
                     <p
                         className="text-xs font-mono font-bold mb-3"
                         style={{
@@ -269,25 +246,24 @@ export default function Dashboard({ onNavigateToDetail }) {
                             fontFamily: "DM Mono",
                         }}
                     >
-                        COMPLETED
+                        ✅ LOGGED TODAY ({loggedToday.length})
                     </p>
                     <div className="space-y-3">
-                        {experiments
-                            .filter((e) => e.status === "completed")
-                            .map((exp) => (
-                                <ExperimentCard
-                                    key={exp.id}
-                                    experiment={exp}
-                                    onTap={onNavigateToDetail}
-                                />
-                            ))}
+                        {loggedToday.map((exp) => (
+                            <ExperimentCard
+                                key={exp.id}
+                                experiment={exp}
+                                onTap={onNavigateToDetail}
+                                onQuickLog={handleQuickLog}
+                            />
+                        ))}
                     </div>
                 </div>
             )}
 
             {/* Empty state */}
             {experiments.length === 0 && (
-                <div className="flex flex-col items-center justify-center px-5 pt-12 pb-8 text-center">
+                <div className="flex flex-col items-center justify-center px-5 pt-16 text-center">
                     <div className="text-6xl mb-6 animate-float">⚗️</div>
                     <h2
                         className="text-xl font-bold mb-2"
@@ -299,8 +275,7 @@ export default function Dashboard({ onNavigateToDetail }) {
                         className="text-sm mb-8 max-w-xs"
                         style={{ color: "var(--text-secondary)" }}
                     >
-                        Start your first self-improvement experiment. Track
-                        habits, break patterns, build streaks.
+                        Start your first self-improvement experiment.
                     </p>
                     <button
                         onClick={() => setShowCreate(true)}
@@ -317,10 +292,9 @@ export default function Dashboard({ onNavigateToDetail }) {
                 </div>
             )}
 
-            {/* Toast */}
             {toastMsg && (
                 <div
-                    className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl text-sm font-semibold animate-scale-in shadow-2xl"
+                    className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl text-sm font-semibold animate-scale-in shadow-2xl"
                     style={{
                         background: "var(--bg-card)",
                         border: "1px solid var(--bg-border)",

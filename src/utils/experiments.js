@@ -51,9 +51,12 @@ export const getLogForDate = (exp, dateStr) =>
     exp.logs?.find((l) => l.date === dateStr) || null;
 
 export const getSuccessRate = (exp) => {
-    if (!exp.logs || exp.logs.length === 0) return 0;
-    const successes = exp.logs.filter((l) => l.status === "success").length;
-    return Math.round((successes / exp.logs.length) * 100);
+    const { daysCompleted } = getExperimentProgress(exp);
+    if (!daysCompleted) return 0;
+    const successes = (exp.logs || []).filter(
+        (l) => l.status === "success",
+    ).length;
+    return Math.round((successes / daysCompleted) * 100);
 };
 
 export const getCurrentStreak = (exp) => {
