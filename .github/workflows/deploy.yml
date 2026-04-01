@@ -37,7 +37,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE: /lab-tracker/
+          VITE_BASE: /
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
