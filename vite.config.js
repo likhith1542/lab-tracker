@@ -5,9 +5,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Set VITE_BASE_PATH env var if deploying to a GitHub Pages repo sub-path
-// e.g. VITE_BASE_PATH=/lab-tracker/ for github.com/user/lab-tracker
-const base = process.env.VITE_BASE_PATH || "/";
+const base = process.env.GITHUB_ACTIONS ? "/lab-tracker/" : "/";
 
 export default defineConfig({
     base,
